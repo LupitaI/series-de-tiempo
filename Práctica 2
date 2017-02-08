@@ -1,0 +1,54 @@
+#### 
+### vamos a simular 1 indicador
+### 
+#### 
+
+##### Para declarar una serie de tiempo
+
+### en este ejemplo vamos a proponer la población en México
+### que el valor minimo seran 100, max 120, 15 datos que inicie en 2000
+pob <- sample(100:120,15,replace = F)    # El replace=F hace que me de los numeros SIN reemplazo
+pob
+### La convertimos en serie de tiempo
+pobts <- ts(pob, frequency = 1, start = (2000))  # La frecuencia es 1= anual, inicia en el año 2000
+end(pobts)  # me dice en qué año termina mi serie
+start(pobts)   # me dice dónde inicia mi serie
+plot(pobts)       # PARA GRAFICAR MI SERIE
+plot(aggregate(pobts))   
+
+## Bajar del inegi la ocupacion de las personas
+### importar csv
+### Mandar llamar una base de datos
+infor <- ts(read.csv(("C:\\Users\\SALA-D7\\Downloads\\Indicadores.csv")), frequency = 4, start = (2005))
+infor
+
+infor4 <- ts(read.csv(("C:\\Users\\SALA-D7\\Downloads\\Indicadores.csv"), header = T), frequency = 4, start =2005)
+infor4
+
+indi3 <- (read.csv(("C:\\Users\\SALA-D7\\Downloads\\indicadoes2.csv")))
+indi3st <- ts(indi3, frequency = 4, start = 2005) # no lo declaro como seri de tiempo porque el ts solo reconoce una matriz y en mi doc. yo tengo 4 series
+decost <- ts(indi3[,1], start = 2005, freq=4)   # Solo me manda llamar la primer entrada de mi matriz
+# la , dentro del corchete es porque no quiero que me jale renglones pero quero que me jale la columna 1
+decost
+decost <- ts(indi3[,1], start = 2005, freq=4, end=2015) # le agregamos cuando termina la serie para que no tome nos N/A
+decost
+
+
+### Declarar 3 series de tiempo de la matriz indi3
+
+# 1.- Tasa de ocupación parcial:
+indi4 <- (read.csv(("C:\\Users\\SALA-D7\\Downloads\\indicadoes2.csv")))
+desopst <- ts(indi3[,2], start = 2005, freq=4)
+desopst
+desopst <- ts(indi3[,2], start = 2005, freq=4, end=2015)
+desopst
+
+
+# 2.- Tasa de trabajo asalariado
+asalst <- ts(indi4[,3], start=2005, freq=4)
+asalst
+
+# 3.- Tasa de condiciones criticas
+
+critst <- ts(indi4[,4], start=2005, freq=4)
+critst
