@@ -1,0 +1,79 @@
+###                                                                 10/02/2017
+
+#### Generar 4 objetos con datos aleatorios y que tengan 60 datos
+### Objeto 1 de numero de profesionistas (mill) rango de 5 a 8
+### objeto 2 crec pib rango de 0 a 5
+### objeto 3 porcentaje de ocupados rango de 40 a 60
+### objeto 4 porcentaje de desocupados rango de 3 a 8
+
+prof <- sample(5:8, 60, replace=TRUE)
+prof
+pib <- sample(0:5,60, replace=TRUE)
+ocupados <- sample(40:60,60, replace=TRUE)
+desocupados <- sample(3:8,60, replace=TRUE)
+
+
+#### 1) Una vez que generen los datos, hacewr una data frame de los 4 objetos
+pceu <- data.frame(prof,pib,ocupados,desocupados)
+
+#### 2) Mostarar en cosola los primeros 12 y los ultimos 12 datos
+pceu [1:12, ]     #muestra los primeros 12 renglones
+pceu [49:60, ]     #muestra los ultimos 12 rengloes
+pceus12 <- pceu[1:12, ]   #guardo los primeros 12 renglones en una nueva base
+
+#### 3) convertir los objetivos en series de tiempo
+# desde el data frame comenzando en 2010 y son datos mensuales
+profts <- ts(prof, frequency = 12, start = (2010))  # la frecuencia = 12 me dice que es mensual mi serie e inicia en 2010
+pibts <- ts(pib, frequency = 12, start = (2010))
+ocupadosts <- ts(ocupados, frequency = 12, start = (2010))
+desocupadosts <- ts(desocupados, frequency = 12, start = (2010))
+end(profts)   # me dice en qué mes y qué año termina mi serie
+
+#### 4) Graficar los profesionistas y ocupados en la misma imagen
+plot(cbind(profts, ocupadosts))
+
+#### 5) Graficar pib y desocupados juntos
+plot(cbind(profts, desocupadosts))
+
+#### 6) graficar todas juntas
+plot(cbind(profts, pibts, ocupadosts, desocupadosts))
+
+#### 7) graficar solo prof y empleados
+plot(pceu[,1:3])
+plot(pceuts[,1], pceuts[,3])
+plot(pceuts[,1])
+
+pceuts <- ts(pceu, frequency = 12, start = (2010))
+
+plot.ts(pceuts[, c(1,3)])   ### grafica las 2 series sin usar el cbind, usando mi base com una serie de tiempo
+plot.ts(pceu[, c(1,3)]) # usando la base como data.frame, la c concatena 2 vectores
+
+#### PARA DECLARAR UNA SERIE DE TIEMPO MULTIPLE:
+pceuts <- ts.intersect(pceu)
+
+
+
+###                                                             Actividad
+## Bajar datos de la tasa de crecimiento anual del PIB en México de 1980 a 2015
+## Crear 4 ST: de 1980 a 1990  -> 1ST
+##             de 1991 a 2000  -> 2ST
+##             de 2001 a 2010  -> 3ST
+##             de 2011 a 2015  -> 4ST
+## Graficar en la misma imagen la ST2 y ST3
+## Graficar en la misma imagen la ST1 y ST4
+
+pibm <- read.csv(("C:\\Users\\SALA-D12\\Documents\\PIB anual.csv"))
+serie1 <- pibm[1:10, ]
+serie2 <- pibm[11:20, ]
+serie3 <- pibm[21:30, ]
+serie4 <- pibm[31:40, ]
+serie1
+ts1 <- ts(serie1, frequency = 1, start = (1980))
+ts1
+ts2 <- ts(serie2, frequency = 1, start = (1991))
+ts3 <- ts(serie3, frequency = 1, start = (2001))
+ts4 <- ts(serie4, frequency = 1, start = (2011))
+
+plot(ts1)
+plot.ts(pibm[, c(2,3)])
+plot.ts(pibm[, c(1,4)])
