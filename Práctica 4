@@ -1,0 +1,76 @@
+##                                                                  13/02/2017
+# Cómo declarar series de tiempo multiple
+# SERIES DE TIEMPO MULTIPLES
+
+prof <- sample(5:8, 60, replace=TRUE)
+prof
+pib <- sample(0:5,60, replace=TRUE)
+ocupados <- sample(40:60,60, replace=TRUE)
+desocupados <- sample(3:8,60, replace=TRUE)
+#### 3) convertir los objetivos en series de tiempo
+# desde el data frame comenzando en 2010 y son datos mensuales
+profts <- ts(prof, frequency = 12, start = (2010))  # la frecuencia = 12 me dice que es mensual mi serie e inicia en 2010
+pibts <- ts(pib, frequency = 12, start = (2010))
+ocupadosts <- ts(ocupados, frequency = 12, start = (2010))
+desocupadosts <- ts(desocupados, frequency = 12, start = (2010))
+seriemultiple <- ts.intersect(profts, pibts, ocupadosts, desocupadosts)  #serie de tiempo multiple
+# con las 4 variables
+# Grafica serie de tiempo multiple en color verde, morado, etc.:
+plot(seriemultiple, main="Serie de tiempo múltiple", xlab="Años", ylab="Numero de personas", col="purple") 
+#Graficar con un punto en cada espacio de tiempo
+plot(seriemultiple, main="Serie de tiempo múltiple", xlab="Años", ylab="Numero de personas", col="purple", type="overplotted") 
+plot(seriemultiple, main="Serie de tiempo múltiple", xlab="Años", ylab="Numero de personas", col="purple", type="overplotted", pch=16) 
+##### xlim, ylim es para la medida de los ejes
+## PARA DIVIDIR O CORTAR UNA SERIE DE TIEMPO:
+#
+seriemultiple02.07 <- window(seriemultiple, start=c(2002,1), end=c(2007,1)) #inicia en el 2002 en el mes 1 y termina en el 2007 ,es 1, mes xq mi serie tiene una frecuencia mensual
+seriemultiple02.12 <- window(seriemultiple, start=c(2007,1), end=c(2011,12))
+seriemultiple02.10 <- window(seriemultiple, start=c(2002,1), end=c(2007,1))
+#Para graficar las 2 series:
+
+plot(seriemultiple02.07, main="Serie de tiempo múltiple", xlab="Años", ylab="Numero de personas", col="green")
+plot(seriemultiple02.12, main="Serie se tiempo múltiple", xlab="Años", ylab="Numero de personas", col="violet")
+plot(seriemultiple02.07, main="Serie se tiempo múltiple", xlab="Años", ylab="Numero de personas", col="violet")
+
+
+##                                     Actividad
+
+#### Obtener 4 series de tiempo cada quien elige con minimo 30 datos
+#### Las series de tiempo que imprten tienen que tener sustento para compararlas
+#### 1) Serie 1
+#### 2) Serie 2
+#### 3) Serie 3
+#### 4) Serie 4
+####  Importarlas, declararlas series de tiempo, graficarlas juntas como series de tiempo cada una
+####  Crear serie de tiempo multiple ... y graficarlas con formato ...
+####  Después dividir estas series de tiempo en en 3 periodos con intervalos iguales
+####  Es decir, si tiene 30 datos generar 3 series de tiempo con 10 años cada una
+####  y graficarlas con formato
+####  Investigar Cómo graficar la serie de tiempo multiple con diferentes colores las 
+####  series de tiempo.
+
+economiam <- read.csv(("C:\\Users\\SALA-D12\\Documents\\economia.csv"))
+s1 <- economiam[,1]
+s1
+s1 <- economiam[1:30,1]
+s1
+s2 <- economiam[1:30,2]
+s3 <- economiam[1:30,3]
+s4 <- economiam[1:30,4]
+
+
+s1ts <- ts(s1, frequency = 12, start = (2013))
+s2ts <- ts(s2, frequency = 12, start = (2013))
+s3ts <- ts(s3, frequency = 12, start = (2013))
+s4ts <- ts(s4, frequency = 12, start = (2013))
+
+end(s1ts)
+start(s1ts)
+
+seriemul <-ts.intersect(s1ts, s2ts, s3ts, s4ts)
+
+s1mul <- window(seriemul, start=c(2013,1), end=c(2013,10))
+s1mul2 <- window(seriemul, start=c(2013,10), end=c(2014,08))
+s1mul3 <- window(seriemul, start=c(2014,08), end=c(2015,06))
+
+plot(seriemul, main="Serie se tiempo múltiple", xlab="Índice de crecimiento económico", ylab="Nivel de ingresos", col="violet")
