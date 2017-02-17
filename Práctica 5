@@ -1,0 +1,61 @@
+###                                                                     17/02/2017
+# Para descomponer una serie de tiempo graficamente se utiliza una funcion que se 
+# llama descompose, por lo que primero es importante reconocer la serie de tiempo
+# y despues aplicarle la funcion graficamente
+
+desoc <- sample(3:8, 44, replace=T)
+tdesoc <- ts(desoc, frequency = 4, start=2005)
+plot(decompose(tdesoc))  #te da un agrafica de la estacionariedad, una de la 
+# tendencia, una de la aleatoriedad y la de la serie(la normal)
+plot(tdesoc)
+
+TIIE <- read.csv("TIIE2015.csv")
+
+sttiie <- ts(TIIE, frequency = 52, start=2015)
+plot(sttiie)
+plot(decompose(sttiie))
+### Con otra serie de tiempo
+pib <- read.csv("PIB México.csv")
+stpib <- ts(pib, frequency = 4, start = 2007)
+plot(stpib)
+plot(decompose(stpib))
+# para que me den los elementos de mi serie de tiempo:
+View(stpib)
+summary(stpib)
+names(stpib$trend)
+
+depibst <- decompose((stpib))  #nos va a dar la tendencia, aleatoriedad y ...
+names(depibst)  #me da el nombre de cada uno de los objetos de mi st
+depibst$trend #me da los datos uqe grafico con decompose
+depibst$seasonal
+# como ya tenemos tendencia, estacionariedad y aleatoriedad, entonces ya podemos
+# aplicar un modelo aditivo o multiplicativo
+
+#                            Actividad
+### Descomponer una serie de tiempo graficamente y llamar cada uno de los 
+### componentes de la serie de tiempo.Realizar un analisis o interpretacion sobre
+### los datos observados de la st.
+### Serie 1= consumo de bienes y servicios de México anuales [renglon 9:43,
+### columna k]
+
+bysmx <- read.csv("Cuadro_65.csv")
+stbysmx <- ts(bysmx, frequency = 12, start = 2014)
+plot(stbysmx)
+plot(decompose(stbysmx))
+
+bienes <- read.csv("Cuadro_665.csv")
+stbienes <- ts(bienes[9:43,11] ,frequency = 12, start = 2014)
+stbienes
+plot(stbienes)
+plot(decompose(stbienes))
+debienes <- decompose(stbienes)
+names(debienes)
+debienes$seasonal
+debienes$trend
+debienes$random
+debienes$figure
+debienes$type
+debienes$x
+
+### Interpretación: En 2015 el consumo de bienes y servicios en México disminuyo 
+### notablemente debido al incremento en el precio del dólar.
