@@ -1,0 +1,29 @@
+####  While
+s <- 7
+while(s<6) {s <- s*2;print(s);}
+
+s <- 1
+while(s<5) {s <- s+1; ; if(s==4) break; print(s);}
+
+s <- 1
+while(s<5) {s <- 0+1; ; if(s==2) break; print(s);}
+
+s <- 2
+while(s<5) {s <- s+1; if(s==2) next; print(s);}
+
+##### Graficas
+## Tendencia
+tsdesoc
+detsdes <- decompose(tsdesoc)
+detsdes$trend
+detsdes$seasonal
+plot(tsdesoc, col="blue", main="Tasa de Desocupación Trimestral", ylab="Tasas", xlab="Años")
+## Para graficar la tendencia de mi serie:
+lines(detsdes$trend, col="red", ylab="Tendencia")
+
+### Estacionariedad:
+monthplot(detsdes$seasonal, main="IVEc", ylab="IVEc trimestral")
+
+####### Para un modelo multiplicativo
+detsdes2 <- decompose(tsdesoc, type="multiplicative")
+detsdes2
