@@ -1,0 +1,93 @@
+##                                                                                           27/02/2017
+##                                       Series de Tiempo
+
+
+#### Descomposición clasica.
+# Se utiliza la funcion decompose
+# O tro tipo de descomposicion de la estacionariedad, tendencia y aleatoriedad es es la
+# descomposicion por "Loess" la cual esta basada en un algoritmo que permite descomponer las 
+# series de tiempo en tres elementos: estacionariedad, tendencia y aleatoriedad, una de las ventajas
+# de esta descomposicion es el calculo de la estacionariedad que se obtienen valores de 
+# estacionariedad no constantes, en contraste con el metodo clsasico de descomposicion.
+# Sus valores (de la Loess) los valores de estacionariedad no son constantes, que es una de las 
+# desventajas de la descomposicion normal, se usa mas en modelos aditivos, para el multiplicativo
+# tendria que ser una serie muy especifica
+# otra ventaja es que el calculo de la tendencia es un poco mas flexible, es mas suave
+
+##################### Descomposición clásica
+## Se utiliza la funncion decompose por ejemplo:
+
+desocupación
+class(desocupación)
+des <- ts(desocupación, frequency = 4, start=2005)
+class(des)
+desco <- decompose(des)
+desco
+tend1 <- desco$trend
+## Prara la tendencia por la descomposicion clasica:
+plot(tend1, col="blue", main="Tendencia desocupación", ylab="Tasas", xlab="Años")
+## para graficar la tendencia de la descomposicion Loose:
+lines(tend2, col="red")
+###### comparando los graficas: la Loose me suaviza los picos que la tradicional no suaviza
+
+
+
+## Descomposicion tendencia, estacional por Loose:
+# Se utiliza la fn. stl()
+
+### Entonces para descomponer por loose:
+desco2 <- stl(des, s.window = ="periodic", robust=T) # si aplicamos robustes me da un mejor resultado
+## me da error porque mi serie esta declarada como "ts" y la necesito como "time series"
+des <- ts(desocupación[1:48, 1], frequency = 4, start=2005)
+######### con esto del [] ya me la da como "Time-Series"
+desco2 <- stl(des, s.window ="periodic", robust=T)
+names(desco2)
+desco2
+desco$trend # aquí no me da los datos completos y con el otro metodo, si me los da
+
+tend2 <- desco2$time.series[,2]
+tend2
+
+#Para descomponer o jalar la estacionariedad de mi serie desco2:
+esta2 <- desco2$time.series[,1]
+esta2
+
+############################   Ejercicio con el PIB
+
+PIBm <- read.csv("PIB México.csv")
+PIBm
+
+tspibm <- ts(PIBm[1:35,1], frequency = 4, start = 2007)
+tspibm
+class(tspibm)
+
+# Para la descomposicion tradicional:
+desctrad <- decompose(tspibm)
+desctrad
+destradtend <- desctrad$trend
+destradtend
+# Grafica de la tencencia con la descomposicion tradicional:
+plot(destradtend, col="blue", main="Tendencia del PIB en México", ylab="PIB trimestral", xlab="Años")
+
+# Para la descomposicion Loose:
+descol <- stl(tspibm, s.window = "periodic", robust = T)
+names(descol)
+descol
+tendl <- descol$time.series[,2]
+tendl
+# Grafica de la tendencia con el metodo Loose:
+lines(tendl, col="red")
+
+##############################################
+
+### Para ajustar la estacionariedad de una serie en R:
+install.packages("fpp")
+require(fpp)
+#Para que el pronostico tenga mayor credibilidad y sea mas aleatorio nuestro pronostico:
+ajus <- seasadj (desco2)
+########## PRONOSTICO METODO INGENUO:
+inge1 <- naive(ajus, h=4)
+plot(inge1)
+## es el pronostico mas basico/sencillo
+# este pronostica una constante con base en mis datos anteriores con un alfa del 90 o 95%
+inge1
