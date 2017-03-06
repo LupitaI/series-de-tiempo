@@ -1,0 +1,43 @@
+#                                                                         6/03/2017
+#                             Series de Tiempo
+
+
+# El momento de picos y caidas es predecible con los datos estacionales, pero
+# impredecible a largo plazo cin datos ciclicos
+install.packages("fpp")
+require(fpp)
+plot(window(elec, start=1980), ylab="Gwh", xlab="Year", main="Australian electricity production")
+## esta grafica tiene estacionariedad, tendencia y componente ciclico
+## Para analizar la estacionariedad:
+seasonplot(elec, s=12, year.labels = TRUE, main = "Electricidad", 
+           ylab = "Valor cierre", col=rainbow(20), year.labels.left = TRUE, pch=15)
+# seasonplot nos da en qué periodo especificamente se da la caida o el alza
+# s= periodicidad, year.labels es para que me de el año en cada linea en el lado
+# derecho, col= rainbow me da los colores del arcoiris, elec es mi serie, el
+# year.labels.left me da las etiquetas (los años) en la izquierda
+# Me dice que en Julio hay un incremento importamnte en el consumo de luz
+
+# Esta grafica tiene componente ciclico, estacionariedad y tendencia:
+plot(bricksq, ylab="million units", xlab="Year", main="Australian clay brick production")
+# tiene 2 momentos ciclicos
+bricksq
+seasonplot(bricksq, s=4, year.labels = TRUE, main = "Produccion de ladrillos ", 
+           ylab = "Valor cierre", col=rainbow(20), year.labels.left = TRUE, pch=15)
+# los picos se dan en el tercer trimestre
+
+#### Venta de casas:
+# grafica con tendencia, tiene muchos componentes ciclicos, no tiene estacionariedad, pues no es
+# constante su comportamiento:
+plot(hsales, main="Sales os new one-family houses, USA", ylab="Total sales", xlab="Year")
+
+seasonplot(hsales, s=12, year.labels = TRUE, main = "Valor de las acciones", 
+           ylab = "Valor cierre", col=rainbow(20), year.labels.left = TRUE, pch=15)
+#### ELIMINANDO TENDENCIA:
+#Primero descomponemos la ST:
+dec <- decompose(bricksq)
+# eliminando la tendencia:
+sinesta <- bricksq-dec$seasonal
+sintend <- bricksq-dec$trend
+
+plot(sinesta)
+plot(sintend)
