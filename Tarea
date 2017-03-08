@@ -1,0 +1,18 @@
+##                                  Series de Tiempo
+
+pib <- read.csv("PIB México.csv", header = TRUE)
+
+stpib <- ts(pib, frequency = 1, start = 1980)
+stpib
+
+X11()
+plot(stpib, xlab="Años", ylab="Incremento % del PIB", main="PIB México 1980-1999", col="deeppink3", )
+
+## Componentes de la serie de tiempo, graficamente:
+# La gráfica no tiene estacionariedad, tiene un componente cíclico y debido al componente cíclico no
+# se puede observar bien la tendencia.
+
+# Eliminando la estacionariedad:
+
+desc <- decompose(stpib)
+desc
