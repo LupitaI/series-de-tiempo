@@ -1,0 +1,65 @@
+desoc<-read.csv("tarea2.csv")
+desoc
+tsdesoc<- ts(desoc, frequency = 4, start = 2005)
+tsdesoc
+
+des1 <- desoc[1:24,]
+des1
+## Para cortar la serie:
+tsdes1<-ts(des1, frequency = 4, start = 2005)
+tsdes1
+des2 <- desoc[25:48,]
+des2
+tsdes2<-ts(des2, frequency = 4, start = 2011)
+tsdes2
+## Para los pronósticos:
+## Método promedio:
+library(forecast)
+p1<-meanf(tsdes1, h=24)
+p2<- naive(tsdes1, h=24)
+p3 <- snaive(tsdes1, h=24)
+p4 <- rwf(tsdes1, h=24, drift=TRUE)
+## Graficando:
+X11()
+plot(p1, main="Desigualdad 2005-2016", xlab = "Año", ylab = "Tasa de Desocupación", col = "goldenrod")
+lines(p2$mean, col="coral")
+lines(p3$mean, col="cyan")
+lines(p4$mean, col="darkorchid1")
+lines(tsdes2)
+legend("topleft", lty=1, col=c("goldenrod","coral", "cyan", "darkorchid1", "black"),
+       legend=c("Media", "Ingenuo", "Ingenuo estacional", "Deriva", "Real"))
+
+## Para hacerlo en función:
+predicciones <- function(h)
+{
+  desoc<-read.csv("tarea2.csv")
+  desoc
+  tsdesoc<- ts(desoc, frequency = 4, start = 2005)
+  tsdesoc
+  
+  des1 <- desoc[1:24,]
+  des1
+  ## Para cortar la serie:
+  tsdes1<-ts(des1, frequency = 4, start = 2005)
+  tsdes1
+  des2 <- desoc[25:48,]
+  des2
+  tsdes2<-ts(des2, frequency = 4, start = 2011)
+  tsdes2
+  ## Para los pronósticos:
+  ## Método promedio:
+  library(forecast)
+  p1<-meanf(tsdes1, h)
+  p2<- naive(tsdes1, h)
+  p3 <- snaive(tsdes1, h)
+  p4 <- rwf(tsdes1, h, drift=TRUE)
+  ## Graficando:
+  X11()
+  plot(p1, main="Desigualdad 2005-2016", xlab = "Año", ylab = "Tasa de Desocupación", col = "goldenrod")
+  lines(p2$mean, col="coral")
+  lines(p3$mean, col="cyan")
+  lines(p4$mean, col="darkorchid1")
+  lines(tsdes2)
+  legend("topleft", lty=1, col=c("goldenrod","coral", "cyan", "darkorchid1", "black"),
+         legend=c("Media", "Ingenuo", "Ingenuo estacional", "Deriva", "Real"))
+}
