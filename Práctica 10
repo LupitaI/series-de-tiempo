@@ -1,0 +1,32 @@
+### series de tiempo                                                            27/03/2017
+
+asa1 <- t(data.frame(read.csv("asalariados.csv", header=T)[7,2:49]))
+asa1
+View(asa)
+## para convertir a serie de tiempo lo que importamos como data frame:
+
+asat <- ts(asa1, frequency = 4, start = 2005) #r te da las matrices como renglones, y como la queremos en
+# columna, entonces la transponemos. pero nos da las entradas como caracter (entre "")
+asat <- as.numeric(asat) ## para convertir una variable tipo caracter en tipo numerico
+asat<-ts(asat)  # hago la seie nuevamente y aplico la siguiente funcion:
+asat
+View(asat)
+
+############# Suavizado exponencial en R
+require(forecast)
+require(forecast)
+mod1 <- ses(asat, alpha = 0.1, initial = "simple", h=8)  #alpha es el que suaviza mi modelo y simple es el
+# que hace que sea un suavizado simple y h=al no. de predicciones o no. de ériodos que quiero que me haga
+### Vamos a hacer tres modelos con la misma tecnica pero diferentes alphas
+mod2 <- ses(asat, alpha = 0.3, initial = "simple", h=8)
+mod3 <- ses(asat, alpha = 0.95, initial = "simple", h=8)
+X11()
+plot(mod1, ylab = "Asalariados", xlab = "Años", main="Asalariados", type = "o")
+lines(mod1$fitted, col="brown", type="o")
+lines(mod2$fitted, col="red", type="o")
+lines(mod3$fitted, col="green", type="o") ## fited te da los valores ajustados
+lines(mod1$mean, col="brown", type="o")
+lines(mod2$mean, col="red", type="o")
+lines(mod3$mean, col="green", type="o")
+legend("topleft", lty=1, col = c(1,"blue", "red", "green"), c("Datos", expression(alpha==0.1), 
+                                  expression(alpha==0.3), expression(alpha==0.95)), pch=15)
