@@ -29,8 +29,8 @@ lines(tsdes2)
 legend("topleft", lty=1, col=c("goldenrod","coral", "cyan", "darkorchid1", "black"),
        legend=c("Media", "Ingenuo", "Ingenuo estacional", "Deriva", "Real"))
 
-## Para hacerlo en función:
-predicciones <- function(h)
+### Mejor estimador:
+estimador <- function(h)
 {
   desoc<-read.csv("tarea2.csv")
   desoc
@@ -62,4 +62,35 @@ predicciones <- function(h)
   lines(tsdes2)
   legend("topleft", lty=1, col=c("goldenrod","coral", "cyan", "darkorchid1", "black"),
          legend=c("Media", "Ingenuo", "Ingenuo estacional", "Deriva", "Real"))
+  
+  a<- data.frame(p1$mean-tsdes2)
+  b<- data.frame(p2$mean-tsdes2)
+  c<- data.frame(p3$mean-tsdes2)
+  d<- data.frame(p4$mean-tsdes2)
+  a;b;c;d
+  tabla<-cbind(a,b,c,d)
+  mejor.estimador <- apply(abs(tabla),1, min)
+  i<-1
+  #h<-24
+  while(i<=h)
+  {
+    if(mejor.estimador[i]==tabla[i,1])
+    {
+      cat("Para h=", i, "el mejor estimador es:", mejor.estimador[i], "con el método de la media \n")
+    }
+    else if(mejor.estimador[i]==tabla[i,2])
+    {
+      cat("Para h=", i, "el mejor estimador es:", mejor.estimador[i], "con el método del ingenuo \n")
+    }
+    else if(mejor.estimador[i]==tabla[i,3])
+    {
+      cat("Para h=", i, "el mejor estimador es:", mejor.estimador[i], "con el método del ingenuo estacional \n")
+    }
+    else if(mejor.estimador[i]==tabla[i,4])
+    {
+      cat("Para h=", i, "el mejor estimador es:", mejor.estimador[i], "con el método de la deriva \n")
+    }
+    i<-i+1
+  }
+  
 }
