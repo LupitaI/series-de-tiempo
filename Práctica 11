@@ -1,0 +1,54 @@
+#
+#                                      Series de Tiempo
+#
+#                                                                                             05/04/2017
+#
+
+### IMPORTAR BASES DE DATOS DE INEGI PARA CALCULAR LOS ÍNDICES
+
+require(foreign) ## para que ejecute el read.dbf
+coe216 <- read.dbf("coe2t116.dbf")
+ls(coe216) ## para que me de la lista de las variables de la base de datos coe216, las genera po
+## orden alfabetico
+View(coe216)
+## Para generar una sub-base que solo contenga a los que tienen seguridad social, que segun el doc. 
+## son los que en "p6d" tengan 1 a 5:
+coe216$P6D <- as.numeric(as.character(coe216$P6D)) ## primero convierto a numerocas todas mis variables
+## Ahora si hago la sub-base:
+coesins <- subset(coe216, coe216$P6D==1 | coe216$P6D==2 | coe216$P6D==3 | coe216$P6D==4 | coe216$P6D==5)
+## esta base ya tiene solo a los trabajadores con seguridad social.
+
+## Para quedarnos solo con los datos que necesitamos:
+coe216$sinseg <- ifelse(coe216$P6D >=1 & coe216$P6D <=5, 1, ifelse(coe216$P6D >=6 & coe216$P6D <=9, 2,0))
+### El ifelse() a todos los valores que cumplan con las dos primeras caracteristicas los va a llamar 1 y
+### los que cumplen con las del segundo ifelse los llama 2, y al resto los llama 0 por el segundo
+### inelse()
+
+##Pra comprobar lo que hicomos con el ifelse():
+table(coe216$sinseg)
+
+#### EJERCICIO:
+# Hacer la variable de desocupados
+coe116 <- read.dbf("coe1t116.dbf")
+attach(coe116)
+coe116$P1C <- as.numeric(as.character(coe116$P1C))
+coe116$P1B <- as.numeric(as.character(coe116$P1B))
+coe116$P2_1 <- as.numeric(as.character(coe116$P2_1))
+coe116$P2_2 <- as.numeric(as.character(coe116$P2_2))
+coe116$P2_3 <- as.numeric(as.character(coe116$P2_3))
+coe116$P2B <- as.numeric(as.character(coe116$P2B))
+coe116$P2C <- as.numeric(as.character(coe116$P2C))
+coe116$P1D <- as.numeric(as.character(coe116$P1D))
+
+coe116$deso <- ifelse(coe116$P1C ==11, 1, ifelse(coe116$P1B==2 & (coe116$P2_1== 1 | coe116$P2_2== 2 | 
+                coe116$P2_3 == 3) & (coe116$P2B == 1) & (coe116$P2C != 2 & coe116$P2C != 9), 2, 
+                ifelse((coe116$P1D ==2 | coe116$ P1D ==9 ) & (coe116$P2_1==1 | coe116$P2_2==2 | 
+                coe116$P2_3==3) & (coe116$P2B==1) & (coe116$P2C !=2 & coe116$P2C !=9), 3, 0) ))
+
+ls(coe116)
+table(coe116$deso)
+### Para ver si coincide con lo que tiene inegi:
+install.packages("questionr")
+require(questionr)
+wtd.table(coe116$deso, weights=coe116$FAC) ## no lo ejecuta por la versión
+## Pero esta funcion expande los datos de la muestra a la poblacion, con la variable FAC 
