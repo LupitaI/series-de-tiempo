@@ -1,0 +1,81 @@
+#                                                                                                17/04/2017
+# Bajar las acciones de NETFLIX, precio de cierre 2016
+netflix <- read.csv("Netflix.csv")
+netst <- ts(netflix[1:252, 1], frequency = 252, start = 2016)
+netst
+class(netst)
+require(fpp)
+m1 <- ses(netst, alpha = .2, initial = "simple", h=8)
+m2 <- ses(netst, alpha = .4, initial = "simple", h=8)
+m3 <- ses(netst, alpha = .6, initial = "simple", h=8)
+m4 <- ses(netst, alpha = .8, initial = "simple", h=8)
+plot(m1, main="Suavizado exponencial simple", xlab = "Valor", ylab = "Modelo",type = "o")
+lines(fitted(m2), col="coral1", type = "o")
+lines(fitted(m3), col="blue", type = "o")
+lines(fitted(m4), col="firebrick3", type = "o")
+### Para graficar solo lineas:
+x11()
+plot(m1, main="Suavizado exponencial simple", xlab = "Valor", ylab = "Modelo")
+lines(fitted(m2), col="coral1")
+lines(fitted(m3), col="blue")
+lines(fitted(m4), col="firebrick3")
+### Según la gráfica, el modelo que más se ajusta es el cuarto
+
+### Para las medidas MAE y RMSE para los cuatro modelos
+## Residuos de todos los modelos:
+aa <- netst-m1$fitted
+aa
+aa1 <- netst-m2$fitted
+aa1
+aa2 <- netst-m3$fitted
+aa2
+aa3 <- netst-m4$fitted
+aa3
+## para MAE:
+mean(abs(aa))
+mean(abs(aa1))
+mean(abs(aa2))
+mean(abs(aa3))
+## Para RMSE:
+sqrt(mean(aa^2))
+sqrt(mean(aa1^2))
+sqrt(mean(aa2^2))
+sqrt(mean(aa3^2))
+MAE <- c(mean(abs(aa)),mean(abs(aa1)),mean(abs(aa2)),mean(abs(aa3)))
+MAE
+RMSE <- c(sqrt(mean(aa^2)), sqrt(mean(aa1^2)),sqrt(mean(aa2^2)),sqrt(mean(aa3^2)))
+RMSE
+mat <- cbind(MAE, RMSE)
+rownames(mat) <- c("Modelo 1", "Modelo 2", "Modelo 3", "Modelo 4")
+mat
+help("which")
+mb <- apply(mat,2, min )
+mb
+
+
+i<-1
+  while(i<=length(MAE))
+  {
+    if(mb[1]== MAE[i])
+    {
+      cat("El mejor modelo para MAE es el",i,"Con MAE=",mb[1], "\n")
+    }
+    i<-i+1
+  }
+  
+ j<-1 
+  while(j<=length(RMSE))
+  {
+    if(mb[2]== RMSE[j])
+    {
+      cat("El mejor modelo para RMSE es el",j, "Con RMSE=", mb[2])
+    }
+    j<-j+1
+  }
+ 
+ ## Por lo tanto la mejor alpha es 0.8
+
+### Interpretación:
+ 
+ # La serie no tiene tendencia, ni estacionariedad, tiene componente cíclico pues se pueden observar
+ # tres picos importantes.
