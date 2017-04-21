@@ -1,0 +1,45 @@
+#                                                                                                  21/04/2017
+##  Ejercicio
+
+dolar<-read.csv("dolar.csv")
+dolar
+dolarts1 <- ts(dolar[1:35,1], frequency = 252, start = c(2015,231))
+dolarts1
+
+dolarts2 <- ts(dolar[36:43,1], frequency = 252, start = c(2016,14))
+dolarts2
+
+## Para los modelos:
+# 1) Tendencia lineal de Holt:
+require(fpp)
+(m1 <- holt(dolarts2, alpha = 0.8, beta = 0.2, initial = "simple", h=8))
+
+# 2) Tendencia exponencial de Holt:
+(m2 <- holt(dolarts2, alpha = 0.8, beta = 0.2, initial = "simple", exponential = TRUE, h=8))
+
+# 3) Tendencia aditiva amortiguado
+(m3 <- holt(dolarts2, damped = TRUE, h=8))
+
+# 4) Tendencia multiplicativa amortiguado
+(m4 <- holt(dolarts2, exponential = T, damped = T, h=8))
+
+## Graficando:
+x11()
+plot(dolarts1, main="Precio del dólar", xlab="Día", ylab="Precio", type="o")
+lines(dolarts2, col="gold")
+lines(m1$mean, type="o", col="darkblue")
+lines(m2$mean, type="o", col="blueviolet")
+lines(m3$mean, type="o", col="firebrick")
+lines(m4$mean, type="o", col="forestgreen")
+
+x11()
+plot(m1, main="Precio del dólar", xlab="Día", ylab="Precio", type="o")
+lines(dolarts, col="red")
+lines(m1$mean, col="darkblue")
+lines(m2$mean, col="blueviolet")
+lines(m3$mean, col="firebrick")
+lines(m4$mean, col="forestgreen")
+legend("topleft", lty=1, col = c(1,"red", "darkblue", "blueviolet","firebrick", "forestgreen" ),
+       c("lineal", "exponencial", "amortiguado", "multiplicativo amortiguado"), pch=15)
+       
+       
