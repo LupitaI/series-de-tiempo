@@ -1,0 +1,22 @@
+#                                                                                             24/04/2017
+
+## Ejercicio
+
+# Buscar generar una serie de tiempo estacional (minimo 15 datos) y aplicar el pronostico en los dos
+# métodos de holt-winter y ademas expliquen el pronostico de tendencia expoebencial y grafiquen para
+# comparar.
+
+
+datos <- read.csv("datos.csv")
+(tsda <- ts(datos[1:19,1], frequency = 12, start = 2009))
+tsda2 <- ts(datos[20:24,1], frequency = 12, start =c(8,2010) )
+tsda2
+(tsda3 <- ts(datos, frequency = 12, start = 2009))
+require(fpp)
+m1 <- hw(tsda3, seasonal = "additive", h=9)
+m2 <- hw(tsda3, seasonal = "multiplicative", h=9)
+m3 <- holt(tsda3, alpha = 0.8, beta = 0.2, initial = "simple", exponential = TRUE, h=9)
+
+plot(m1, main = "Ventas mensuales", xlab = "Mes", ylab = "vtas.")
+lines(m2$mean, col="red")
+lines(m3$mean, col="green")
