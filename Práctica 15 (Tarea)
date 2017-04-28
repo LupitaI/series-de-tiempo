@@ -1,0 +1,269 @@
+#                                                                                                   26/04/2017
+################### Ejercicio en clase ############################# 
+
+#### utilizar 3 series de tiempo #### serie
+
+#### 1) precios diarios del dólar últimos 6 meses 
+#### 2) acciones de ICA diarias cierre de 2016 
+#### 3) Últimos 16 años crecimiento (%) del Pib anual 
+#### 4) acciones de Bimbo diarias cierre 2016 
+#### 5) una serie que tenga que ver con su trabajo final 
+
+#### 1) obtener las series
+dolar <- read.csv("d1nov.csv")
+ica <- read.csv("ica-2016.csv")
+bimbo <- read.csv("bimbo-2016.csv")
+pib <- read.csv("pib.16.csv")
+pfizer <- read.csv("pfizer-2016.csv")
+
+#### 2) convertirlas en series de tiempo y graficarlas
+(tsdolar <- ts(dolar[1:102,1], frequency = 252, start = c(2016,211)))
+(tsdolar1 <- ts(dolar[103:126,1], frequency = 252, start = c(2017,60)))
+(tsica <- ts(ica[2:184,1], frequency = 229, start = c(2016,1)))
+(tsica1 <- ts(ica[185:229,1], frequency = 229, start = c(2016,185)))
+(tspib <- ts(pib[1:14,1], frequency = 1, start = 2001))
+(tspib1 <- ts(pib[15:16,1], frequency = 1, start = 2001))
+(tsbimbo <- ts(bimbo[1:201,1], frequency = 252, start = c(2016,1)))
+(tsbimbo1 <- ts(bimbo[202:252,1], frequency = 252, start = c(2016,201)))
+(tspf <- ts(pfizer[1:201,1], frequency = 252, start = c(2016,1)))
+(tspf1 <- ts(pfizer[202:252,1], frequency = 252, start = c(2016,201)))
+x11(); plot(tsdolar, main="Dólar 2016-2017", xlab="Día", ylab="Precio", col="coral1")
+x11(); plot(tsica, main="Acciones de Ica, 2016", xlab="Día", ylab="Precio", col="dodgerblue4")
+x11(); plot(tspib, main="Variacion % anuale del PIB", xlab="Año", ylab="Variación", col="darkmagenta")
+x11(); plot(tsbimbo, main="Acciones de Bimbo, 2016", xlab="Día", ylab="Precio", col="darkgreen")
+x11(); plot(tspf, main="Acciones de Pfizer, 2016", xlab="Día", ylab="Precio", col="deeppink4")
+
+#### 3) analizar las gráficas y decidir qué modelo usar, modelos simples (media, ingenuo, etc), holt,
+#### holt amortiguado, holt Winter
+
+####                                             Para el Dólar
+install.packages("fpp")
+install.packages("forecast")
+require(fpp)
+require(forecast)
+# Modelos simples:
+m1d <- naive(tsdolar, h=24)
+m2d <- meanf(tsdolar, h=24)
+m3d <- snaive(tsdolar, h=24)
+m4d <- rwf(tsdolar, h=24, drift=TRUE)
+## Para el pronóstico:
+x11(); plot(m1d, main="Dólar 2016-2017", xlab="Día", ylab="Precio", col="coral1")
+lines(tsdolar1)
+lines(m2d$mean, col="darkred")
+lines(m3d$mean, col="deeppink4") ## es el mejor modelo de los simples
+lines(m4d$mean, col="darkmagenta")
+## Para el modelo ajustado:
+x11(); plot(tsdolar, main="Dólar 2016-2017", xlab="Día", ylab="Precio", col="coral1")
+lines(m1d$fitted, col="darkblue") ## es el que mejor ajusta, es igual al modelo 4
+lines(m2d$fitted, col="darkred")
+lines(m3d$fitted, col="deeppink4") 
+lines(m4d$fitted, col="darkmagenta")
+
+
+# Modelos Holt
+m1h <- holt(tsdolar, initial="simple", alpha = 0.8, beta = 0.2 ,h=24)
+m2h <- holt(tsdolar, initial="simple", alpha = 0.8, beta = 0.2 , exponential = TRUE ,h=24)
+## Para el pronóstico:
+x11(); plot(m1h, main="Dólar 2016-2017", xlab="Día", ylab="Precio", col="coral1")
+lines(tsdolar1)
+lines(m2h$mean, col="black") # Es el que mejor se ajusta, pues va un poco al alza con respecto al anterior
+## Para el modelo ajustado:
+x11(); plot(tsdolar, main="Dólar 2016-2017", xlab="Día", ylab="Precio", col="coral1")
+lines(m1h$fitted, col="darkblue") 
+lines(m2h$fitted, col="darkred") ## es el que mejor ajusta
+
+
+# Modelos amortiguados:
+m1a <- holt(tsdolar,damped = TRUE, h=24)
+m2a <- holt(tsdolar, exponential = T ,damped = TRUE, h=24)
+## Para el pronóstico:
+x11(); plot(m1a, main="Dólar 2016-2017", xlab="Día", ylab="Precio", col="coral1") ## es el que más ajusta
+lines(tsdolar1)
+lines(m2a$mean, col="darkred")
+## Para el modelo ajustado:
+x11(); plot(tsdolar, main="Dólar 2016-2017", xlab="Día", ylab="Precio", col="coral1") # es el que mpas se ajusta
+lines(m1a$fitted, col="darkblue") 
+lines(m2a$fitted, col="darkred")
+
+
+# Modelo Holt-Winters
+mhw1 <- hw(tsdolar, seasonal = "additive", h=24)
+mhw2 <- hw(tsdolar, seasonal = "multiplicative", h=24)
+## Para el pronóstico:
+x11(); plot(mhw1, main="Dólar 2016-2017", xlab="Día", ylab="Precio", col="coral1") # es el que más ajusta
+lines(tsdolar1)
+lines(mhw2$mean, col="darkred")
+## Para el modelo ajustado:
+x11(); plot(tsdolar, main="Dólar 2016-2017", xlab="Día", ylab="Precio", col="coral1") 
+lines(mhw1$fitted, col="darkblue") # es el que mpas se ajusta
+lines(mhw2$fitted, col="darkred")
+
+
+####                                             Para Ica
+
+# Modelos simples:
+m1i <- naive(tsica, h=45)
+m2i <- meanf(tsica, h=45)
+m3i <- snaive(tsica, h=45)
+m4i <- rwf(tsica, h=45, drift=TRUE)
+## Para el pronóstico:
+x11(); plot(m1i, main="Acciones de Ica 2016", xlab="Día", ylab="Precio", col="coral1")
+lines(tsica1)
+lines(m2i$mean, col="darkred")
+lines(m3i$mean, col="deeppink4") ## es el mejor modelo de los simples
+lines(m4i$mean, col="darkmagenta")
+## Para el modelo ajustado:
+x11(); plot(tsica, main="Acciones de Ica 2016", xlab="Día", ylab="Precio", col="coral1")
+lines(m1i$fitted, col="darkblue") 
+lines(m2i$fitted, col="darkred")
+lines(m3i$fitted, col="deeppink4") ## es el que mejor ajusta
+lines(m4i$fitted, col="darkmagenta")
+
+
+# Modelos Holt
+m4i <- holt(tsica, initial="simple", alpha = 0.8, beta = 0.2 ,h=45)
+m5i <- holt(tsica, initial="simple", alpha = 0.8, beta = 0.2 , exponential = TRUE ,h=45)
+## Para el pronóstico:
+x11(); plot(m4i, main="Acciones de Ica 2016", xlab="Día",ylab="Precio", 
+      col="coral1")# Es el que mejor se ajusta, pues crece menos a prisa que el segundo
+lines(tsica1)
+lines(m5i$mean, col="deeppink4") 
+## Para el modelo ajustado:
+x11(); plot(tsica, main="Acciones de Ica 2016", xlab="Día", ylab="Precio", col="coral1")
+lines(m4i$fitted, col="darkblue") ## es el que mejor ajusta
+lines(m5i$fitted, col="darkred") 
+
+
+# Modelos amortiguados:
+m6i <- holt(tsica,damped = TRUE, h=45)
+m7i <- holt(tsica, exponential = T ,damped = TRUE, h=45)
+## Para el pronóstico:
+x11(); plot(m6i, main="Acciones de Ica 2016", xlab="Día", ylab="Precio", col="coral1") 
+lines(tsica1)
+lines(m7i$mean, col="darkred")## es el que más ajusta, pues va más a la baja
+## Para el modelo ajustado:
+x11(); plot(tsica, main="Acciones de Ica 2016", xlab="Día", ylab="Precio", col="coral1") 
+lines(m6i$fitted, col="darkblue") 
+lines(m7i$fitted, col="darkred") # es el que más se ajusta
+
+
+# Modelo Holt-Winters
+m8i <- hw(tsica, seasonal = "additive", h=45)
+m9i <- hw(tsica, seasonal = "multiplicative", h=45)
+## Para el pronóstico:
+x11(); plot(m8i, main="Acciones de Ica 2016", xlab="Día", ylab="Precio", col="coral1") 
+lines(tsica1)
+lines(m9i$mean, col="darkred")# es el que más ajusta, pues va un poco más a la baja
+## Para el modelo ajustado:
+x11(); plot(tsica, main="Acciones de Ica 2016", xlab="Día", ylab="Precio", col="coral1") 
+lines(m8i$fitted, col="darkblue") # es el que mpas se ajusta
+lines(m9i$fitted, col="darkred")
+
+
+
+####                                             Para Bimbo
+
+# Modelos simples:
+m1b <- naive(tsbimbo, h=51)
+m2b <- meanf(tsbimbo, h=51)
+m3b <- snaive(tsbimbo, h=51)
+m4b <- rwf(tsbimbo, h=51, drift=TRUE)
+## Para el pronóstico:
+x11(); plot(m1b, main="Acciones de Bimbo 2016", xlab="Día", ylab="Precio", col="coral1") # es el que menos error tiene
+lines(tsbimbo1)
+lines(m2b$mean, col="darkred")
+lines(m3b$mean, col="deeppink4")
+lines(m4b$mean, col="darkmagenta")
+## Para el modelo ajustado:
+x11(); plot(tsbimbo, main="Acciones de Bimbo 2016", xlab="Día", ylab="Precio", col="coral1")
+lines(m1b$fitted, col="darkblue") ## es el que mejor ajusta, es igual al modelo 4
+lines(m2b$fitted, col="darkred")
+lines(m3b$fitted, col="deeppink4") 
+lines(m4b$fitted, col="darkmagenta")
+
+
+# Modelos Holt
+m4b <- holt(tsbimbo, initial="simple", alpha = 0.8, beta = 0.2 ,h=51)
+m5b <- holt(tsbimbo, initial="simple", alpha = 0.8, beta = 0.2 , exponential = TRUE ,h=51)
+## Para el pronóstico:
+x11(); plot(m4b, main="Acciones de Bimbo 2016", xlab="Día",ylab="Precio", 
+            col="coral1")
+lines(tsbimbo1)
+lines(m5b$mean, col="deeppink4") # Es el que mejor se ajusta, pues al final se recupera un poco como en lo datos originales
+## Para el modelo ajustado:
+x11(); plot(tsbimbo, main="Acciones de Bimbo 2016", xlab="Día", ylab="Precio", col="coral1")
+lines(m4b$fitted, col="darkblue") ## es el que mejor ajusta
+lines(m5b$fitted, col="darkred") 
+
+
+# Modelos amortiguados:
+m6b <- holt(tsbimbo,damped = TRUE, h=51)
+m7b <- holt(tsbimbo, exponential = T ,damped = TRUE, h=51)
+## Para el pronóstico:
+x11(); plot(m6b, main="Acciones de Bimbo 2016", xlab="Día", ylab="Precio", col="coral1") 
+lines(tsbimbo1)
+lines(m7b$mean, col="darkred")## es el que más ajusta, pues va más a la baja
+## Para el modelo ajustado:
+x11(); plot(tsbimbo, main="Acciones de Bimbo 2016", xlab="Día", ylab="Precio", col="coral1") 
+lines(m6b$fitted, col="darkblue") 
+lines(m7b$fitted, col="darkred") # es el que más se ajusta
+
+
+# Modelo Holt-Winters
+m8b <- hw(tsbimbo, seasonal = "additive", h=51)
+m9b <- hw(tsbimbo, seasonal = "multiplicative", h=51)
+## Para el pronóstico:
+x11(); plot(m8b, main="Acciones de Bimbo 2016", xlab="Día", ylab="Precio", col="coral1") 
+lines(tsbimbo1)
+lines(m9b$mean, col="darkred")# es el que más ajusta
+## Para el modelo ajustado:
+x11(); plot(tsbimbo, main="Acciones de Bimbo 2016", xlab="Día", ylab="Precio", col="coral1") 
+lines(m8b$fitted, col="darkblue") 
+lines(m9b$fitted, col="darkred")# es el que mpas se ajusta
+
+
+#### 4) con cada una de las series hacer una comparación de los datos ajustados de los modelos de 
+#### predicción (elegir 1 modelo de simple, 1 holt, 1 amortiguado y 1 winter), despues analizar cual ajusta 
+#### mejor y porque ustedes creen que este modelo realiza el mejor ajuste. Apliquen la función accuracy 
+#### para saber si su análisis grafico coincide con los resultados del accuracy
+################ Para el dólar:
+evalmod1d <- accuracy(m1d)
+evalmod2d <- accuracy(m2d)
+evalmod3d <- accuracy(m3d)
+evalmod4d <- accuracy(m4d)
+evalmod1h <- accuracy(m1h)
+evalmod2h <- accuracy(m2h)
+evalmod1a <- accuracy(m1a)
+evalmod2a <- accuracy(m2a)
+evalmodhw1 <- accuracy(mhw1)
+evalmodhw2 <- accuracy(mhw2)
+evalmod1d; evalmod2d; evalmod3d; evalmod4d ## el mejor modelo es el 4
+evalmod1h; evalmod2h ## el mejor modelo es el 1
+evalmod1a; evalmod2a  ## el mejor modelo es el 2
+evalmodhw1; evalmodhw2  # son iguales
+
+#### 5) con cada una de las series hacer una comparación de los datos pronosticados de los modelos de 
+#### predicción (elegir 1 modelo de simple, 1 holt, 1 amortiguado y 1 winter), despues analizar cual 
+#### pronostica mejor
+
+##### Grafica de los cuatro mejores modelos para el dólar:
+x11(); plot(m3d, main="Dólar 2016-2017", xlab="Día", ylab="Precio", col="coral1")
+lines(tsdolar1)
+lines(m2h$mean, col="darkred") ## Es el que mejor sigue la tendencia
+lines(m1a$mean, col="deeppink4") 
+lines(mhw1$mean, col="darkmagenta")
+
+##### Grafica de los cuatro mejores modelos para Ica:
+x11(); plot(m3i, main="Acciones de Ica 2016", xlab="Día", ylab="Precio", col="coral1")
+lines(tsica1)
+lines(m4i$mean, col="darkred")
+lines(m7i$mean, col="deeppink4") ## es el que más se acerca a la tendencia, que es a la baja, pero el 3 tiene
+## más puntos en común con la serie original, en los primeros periodos.
+lines(m9i$mean, col="darkmagenta")
+
+##### Grafica de los cuatro mejores modelos de bimbo:
+x11(); plot(m1b, main="Acciones de Bimbo 2016", xlab="Día", ylab="Precio", col="coral1")
+lines(tsbimbo1)
+lines(m5b$mean, col="darkred")  ## se apega mucho la tendencia
+lines(m7b$mean, col="deeppink4") 
+lines(m9b$mean, col="darkmagenta")
