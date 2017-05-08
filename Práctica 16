@@ -1,0 +1,16 @@
+#                                                                                                                 8/05/17
+
+#################################################################################################
+################################ SERIES DE TIEMPO ESTACIONARIAS #################################
+#################################################################################################
+
+
+ica <- read.csv("ica-17.csv")
+ica1 <- ts(ica, frequency = 252, start = 2016)
+ica1
+library(stats)
+acf(ica1) ## aquí los datos estan muy relacionados, por lo tanto no es estacionaria, entonces
+## la podemos hacer estacionaria con una diferenciación.
+serie1 <- sample(300:900, 252, replace = T)
+serie11 <- ts(serie1, frequency = 252, start = 2016)
+acf(serie11)  ## este me da un ruido blanco, los datos no estan relacionados
