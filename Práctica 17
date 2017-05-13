@@ -1,0 +1,24 @@
+##                                        Series de tiempo
+
+## Datos: Precio de las acciones de ICA en el periodo 8/05/2016 al 8/05/2017
+ica <- read.csv("ICA-16-17.csv")
+icats <- ts(ica, frequency = 252, start = 2016)
+plot(icats)
+# Como no tiene estacionalidad, entonces aplicamos una diferencia para correjir este supuesto
+(ica2 <- 1:251)
+
+
+i=2
+while(i<=252)
+{
+  ica2[i-1]=ica[i,1]-ica[i-1,1]
+  i=i+1
+}
+
+
+ica2
+tsica2 <- ts(ica2, frequency = 252, start = 2016)
+plot(tsica2, main= "ICA 2016-2017", xlab="Día", ylab="Cierre", col="cyan", pch="p")
+
+
+## De esta forma se arregla la no estacionalidad de la serie.
