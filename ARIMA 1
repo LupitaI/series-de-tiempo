@@ -1,0 +1,144 @@
+#                                                                                         22/05/17
+
+#####    ARIMA(p=Ar,No. de diferencias, q=MA); si el no. de diferencias es 0, entonces vamos a proponer
+#####      un modelo ARMA
+
+###################################################################################################
+##################################### PARA LAS ACCIONES DE BIMBO ##################################
+###################################################################################################
+
+require(foreign)
+bimbo <- read.csv("bimbo.csv")
+tsbimbo <- ts(bimbo, frequency = 252, start = 2016)
+
+#### Primer paso paea un modelo ARIMA, es ver si nuestra serie es estacionaria.
+
+#### REVISAR SI NUESTRA SERIES ES ESTACIONARIA.
+### se aplica la prueba de raiz unitaria a traves de la funcion adf.test y esperamos que el valor
+### sema menor a 0.05
+require(fpp)
+adf.test(tsbimbo)
+dtsbimbo <- diff(tsbimbo) ## Aplicamos la primera diferenciación con la función dif, debido a que
+## la serie original NO ES ESTACIONARIA. Se aplica la diferenciacion porque el p-value en esta
+## prueba nos dio mayor a 0.05
+## Ya que aplicamos la diferenciacion, aplicamos la prueba adf.test nuevamente pero ahora a la 
+## serie ya con la diferenciacion
+
+adf.test(dtsbimbo)  ## Con esta diferenciacion el p-value da menor a 0.05, por lo tanto ya es
+## estacionaria la serie y el el ARIMA vamos a tener como segundo valor un 1 porque solo hicimos
+## una diferenciacion para que se hiciera estacionaria la serie.
+
+## A LA SERIE CON LA DIFERENCIACION LE VAMOS A PLICAR DOS CORRELOGRAMAS:
+## Para encontrar el valor de los promedios moviles se saca el correlograma ACF a la diferenciada:
+acf(dtsbimbo)  ## aquí lo que tenemos que observar es el número de lineas que sobrepasan las
+## líneas punteadas, y ese va a ser el valor de MA en el ARIMA. *** q=2 en este caso ***
+## El correlograma debe cumplir que las líneas no sean continuas (las negras), en este caso 
+## cumple con esto porque ya es estacionaria la serie.
+
+## Para determinar la parte de autorregresivos, que es el valor de p y es AR en el ARIMA.
+## Para determinar el valor de p que se relaciona con los modelos autorregresivos se utiliza 
+## la funcion pacf()
+pacf(dtsbimbo)  ## En este caso solo una línea sobreparasa las lineas azules, por lo tanto 
+## *** p=1 *** segun el correlograma pacf
+
+###### Por lo que se propone un modelo ARIMA(1,1,2), QUE SE CALCULA CON LA FORMULA:
+
+modbim <- Arima(tsbimbo, order = c(1,1,2))  ## en este se usa la serie original, porque con el 1
+## de la diferencia le va a aplicar una, y si metemos la diferenciada => aplicaria la segunda 
+## diferencia.
+modbim  ## nos da el ma1 y ma2 que son los valores de nuestros promedios moviles y ar1 es el
+## valor del autorregresivo
+## Calculamos otro modelo variando AR
+modbim1 <- Arima(tsbimbo, order = c(2,1,2))
+modbim1
+### Entre estos dos modelos habria que revisar el valor de AICc y el menor valor de AICc sería 
+### el mejor modelo con el criterio de AIKAIKE
+
+## por lo tanto entre estos dos modelos por el criterio de aikaike nos quedamos con el primero
+
+
+### SUPUESTO DE QUE LOS RESIDUALES SON RUIDO BLANCO: Los residuales tienen que tener ruido blanco 
+### para que nuestro modelo sea bueno:
+modres <- residuals(modbim)  #sacamos los residuales del modelo
+Box.test(modres, lag = 12, type = "Ljung-Box") ## aplicamos la prueba, en la que queremos un
+### p-value grande para aceptar que los residuos son ruido blanco. Si es monor a 0.05 entonces 
+### no es ruido blanco
+
+## YA QUE LOS RESIDUOS SON RUIDO BLANCO, VAMOS A PRONOSTICAR:
+mod1 <- forecast(modbim, h=12) ## me va a pronosticar los siguientes 12 datos de mi serie
+X11()
+plot(forecast(modbim, h=12), include = 18) ## el include solo me da los primeros 18 datos de mi serie
+## o los que yo quiera, pero no grafica todos
+mod1
+summary(mod1)
+
+
+########### Función autoarima: Me propone los valores de p, q y el numero de diferenciaciones
+########### de forma automatica, solo usando nuestros datos:
+auto.arima(tsbimbo)  ## Esta lo que nos propone es aplicar un ARIMA(2,1,2), lo aplicamos
+## y nuevamente hacemos lo de los residuales y lo del pronostico para ver cual es el más adecuado
+## El modelo ya lo habiamos calculado, asi que solo sacamos residuales y el pronostico:
+#### Residuales:
+modres1 <- residuals(modbim1)
+Box.test(modres1, lag = 12, type = "Ljung-Box")  #si son ruido blanco
+
+#### Pronóstico:
+mod2 <- forecast(modbim1, h=12) 
+X11()
+plot(forecast(modbim1, h=12), include = 18)
+mod2
+summary(mod2)
+
+
+###################################################################################################
+##################################### PARA LAS ACCIONES DE CEMEX ##################################
+###################################################################################################
+
+cemex <- read.csv("cemex.csv")
+tscemex <- ts(cemex, frequency = 252, start = 2016)
+adf.test(tscemex) ## como da un p-value mayor a 0.05, aplicamos una diferencia
+dtscemex <- diff(tscemex)
+adf.test(dtscemex)  ## como da un p-value menor a 0.05, solo vamos a aplicar esta diferencia
+
+### Para q (MA)
+acf(dtscemex)  # q=1
+
+### Para p (AR)
+pacf(dtscemex)  # p=0
+
+## Por lo tanto vamos a proponer un modelo ARIMA(0,1,1)
+## Aplicando el Arima:
+
+modcemex <- Arima(tscemex, order = c(0,1,1))
+modcemex
+### Para los residuales:
+res1 <- residuals(modcemex)
+Box.test(res1, lag = 12, type = "Ljung-Box") ## Como el p-value es mayor a .05, son ruido blanco
+### Para el pronóstico:
+pronostico <- forecast(modcemex, h=12) 
+X11()
+plot(forecast(modcemex, h=12), include = 18)
+pronostico
+summary(pronostico)
+
+#### Aplicando un autoarima:
+auto.arima(tscemex)  ## nos da como modelo propuesto un ARIMA(0,1,0)
+## Aplicando el modelo propuesto:
+modcemex1 <- Arima(tscemex, order = c(0,1,0))
+modcemex1  ## Nos da un AICc menor que el del modelo anterior
+
+### Para los residuales:
+res2 <- residuals(modcemex1)
+Box.test(res2, lag = 12, type = "Ljung-Box") ## Como el p-value es mayor a .05, son ruido blanco
+
+### Para el pronóstico:
+pronostico1 <- forecast(modcemex1, h=12) 
+X11()
+plot(forecast(modcemex1, h=12), include = 18)
+pronostico1
+summary(pronostico1)
+  
+
+################ Como ambos pronósticos son muy parecidos, nos quedamos con el modelo propuesto
+## por el autoarima, ya que presenta un AICc menor que el primero, por lo tanto el modelo final
+## sería: ARIMA(0,1,1)
