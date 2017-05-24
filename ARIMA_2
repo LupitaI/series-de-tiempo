@@ -1,0 +1,58 @@
+#                                                                                         24/05/17
+
+am <- read.csv("am.csv")
+tsam <- ts(am, frequency = 252, start = 2016)
+require(forecast)
+require(fpp)
+
+############# Acciones Telmex
+zz <- Arima(tsam, order = c(1,0,0))
+zz
+## Este modelo es una autorregresivo de orden 1 = AR(1), los coeficientes que me da los puedo
+## expresar de la siguiente forma: yt=12.6923+0.9899(yt-1) + ... 
+## En este caso fi1= 09899
+## Si tuvieramos un modelo autorregresivo de orden 2 se expresa como un modelo arima de la siguiente
+## forma:
+
+zz2 <- Arima(tsam, order = c(2,0,0))
+zz2
+## En este caso el modelo AR(2) se plantea de la siguiente manera:
+## yt=12.6739+ 1.0655(yt-1) - 0.0766(yt-2) + et ... En este caso fi1 = 1.0655, fi2 = -0.0766
+
+#### Conforme aumenta AR, aumenta el nuero de coeficientes que voy a tener de fi
+#### La funcion que se debe usar es "Arima" porque esta SI nos da los valores AIC y AICc
+
+
+## AHORA BIEN, si tenemos de promedios moviles MA(q), se puede expresar:
+## yt = c + teta1(et-1) + teta2(et-2) + ... + tetap(et-q) + et
+## a traves de un modelo ARIMA se expresa de esta forma como lo podríamos representar:
+yy <- Arima(tsam, order = c(0,0,2))
+yy
+#### En este caso tenemos un modelo de MA(2)
+## Para el modelo planteado se expresa:
+## yt = 12.3223 + 1.3919(et-1) + 0.7129(et-2) + et - q ; en este caso:
+## c=12.3223, teta1= 1.3919, teta2=0.7129 
+## Si a la serie NO se le aplica una diferenciacion, nos queda un analisis ARMA
+
+
+############################### Modelos ARIMA (con diferenciacion)
+## Para una ARIMA con p02, d=3, q=2, expresa:
+yy3 <- Arima(tsam, order = c(2,3,2))
+yy3
+## Este modelo podemos expresarlo como:
+## y´t=0.0855(y´´´t-1) -0.1523(y´´´t-2) -1.9810(et-1) + 0.9813(et-2) +et
+
+####################################################################################################
+################################ ACCIONES DE IXE ###################################################
+####################################################################################################
+
+## Acciones diarias de IXE, de la página: Investing
+ixe <- read.csv("IXE.csv")
+tsixe <- ts(ixe, frequency = 252, start = 2016)
+
+## Aplicando un modelo Arima(0,3,2)
+
+mod1 <- Arima(tsixe, order = c(0,3,2))
+mod1
+## este modelo se puede expresar como:
+## yt = -1.9964(et-1) + 0.997(et-2)
